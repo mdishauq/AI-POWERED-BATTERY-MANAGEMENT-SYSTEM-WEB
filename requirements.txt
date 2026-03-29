@@ -1,13 +1,11 @@
-# Web Framework
+# Web Framework & Security
 Flask==3.0.0
 Flask-Login==0.6.3
 
-# Production Server (Required for Render, optional for PythonAnywhere)
+# Production Server (REQUIRED for Render)
 gunicorn==21.2.0
 
-# Data & AI Logic
+# AI & Data Logic (Common for BMS AI models)
 numpy==1.26.4
 pandas==2.2.1
 scikit-learn==1.4.1.post1
-
-# Database (SQLite is built into Python, no extra pip install needed)
