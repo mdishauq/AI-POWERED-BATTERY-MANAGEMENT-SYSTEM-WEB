@@ -1,0 +1,84 @@
+Flask==3.0.0
+Flask-Login==0.6.3
+```
+
+**Save it** (Ctrl+S)
+
+---
+
+### **Step 2: Verify Your Project Structure**
+
+Your folder should look like this:
+```
+bms_project/
+├── web.py
+├── database.py
+├── requirements.txt          ← Just created
+├── bms_data.db              ← (will be created on server)
+└── templates/
+    ├── login.html
+    ├── home.html
+    ├── dashboard.html
+    ├── history.html
+    ├── alerts.html
+    ├── devices.html
+    ├── simulator.html
+    ├── settings.html
+    └── about.html
+```
+
+---
+
+## **PHASE 2: CREATE PYTHONANYWHERE ACCOUNT**
+
+### **Step 3: Sign Up**
+
+1. Go to: **https://www.pythonanywhere.com**
+2. Click **"Start running Python online in less than a minute!"**
+3. Click **"Create a Beginner account"**
+4. Fill in:
+   - **Username:** Choose carefully (this will be your URL: `username.pythonanywhere.com`)
+   - **Email:** Your email
+   - **Password:** Strong password
+5. Click **"Register"**
+6. **Verify your email** (check inbox/spam)
+
+---
+
+## **PHASE 3: UPLOAD YOUR FILES**
+
+### **Step 4: Upload Files to PythonAnywhere**
+
+**Option A: Upload via Web Interface (Easier)**
+
+1. Login to PythonAnywhere
+2. Click **"Files"** tab at the top
+3. You'll see your home directory: `/home/yourusername/`
+4. Click **"Upload a file"** button
+5. Upload these files **one by one:**
+   - `web.py`
+   - `database.py`
+   - `requirements.txt`
+
+6. **Create templates folder:**
+   - Click **"New directory"**
+   - Name it: `templates`
+   - Click inside `templates` folder
+   - Upload all HTML files one by one
+
+**Your structure on PythonAnywhere should be:**
+```
+/home/yourusername/
+├── web.py
+├── database.py
+├── requirements.txt
+└── templates/
+    ├── login.html
+    ├── home.html
+    ├── dashboard.html
+    ├── history.html
+    ├── alerts.html
+    ├── devices.html
+    ├── simulator.html
+    ├── settings.html
+    └── about.html

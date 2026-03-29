@@ -1,0 +1,79 @@
+Active Website:
+Someone visits → Website responds → Shows dashboard ✅
+
+After 3 Months Inactivity:
+Someone visits → "Website disabled" message ⚠️
+```
+
+**BUT:** All your data is still there, just paused!
+
+---
+
+## **How to Wake It Up:**
+
+**Super simple - takes 10 seconds:**
+
+1. Login to PythonAnywhere
+2. Go to **"Web"** tab
+3. Click the green **"Reload"** button
+4. **Done!** Website is live again! ✅
+
+**That's it!** No data loss, no re-uploading files, no configuration needed.
+
+---
+
+## **What Gets Preserved:**
+
+✅ All your Python files  
+✅ All HTML templates  
+✅ **Your database** (bms_data.db with all readings)  
+✅ **All settings** (voltage thresholds, etc.)  
+✅ **All registered devices**  
+✅ **All alerts history**  
+
+**Nothing is lost!** Just need one click to wake it up.
+
+---
+
+## **When Does It Sleep?**
+
+**PythonAnywhere's policy:**
+- If your website gets **ZERO visits** for 3 months
+- You get an **email warning** before it happens
+- After expiry, just login and click "Reload"
+
+---
+
+## **How to Prevent Sleep:**
+
+**Option 1: Keep it active**
+- Visit your website once every 2 months
+- Or set up a free uptime monitor (like UptimeRobot)
+
+**Option 2: Set a reminder**
+- Calendar reminder every 2 months: "Visit BMS website"
+
+**Option 3: Just let it sleep**
+- If you're not using it, let it sleep
+- Wake it up when needed (10 seconds)
+
+---
+
+## **Real Scenario:**
+
+**Example Timeline:**
+```
+Jan 2025: Deploy website ✅
+Feb 2025: Testing with ESP32 ✅
+Mar 2025: Project presentation ✅
+Apr-Jun 2025: Not using website (busy with exams)
+  ↓
+July 2025: PythonAnywhere sends email: "Website will expire in 30 days"
+  ↓
+Aug 2025: Website shows "disabled" message
+  ↓
+Sep 2025: You want to show it to someone
+  ↓ 
+You: Login → Click "Reload" (10 seconds)
+  ↓
+Website is LIVE again! All data intact! ✅

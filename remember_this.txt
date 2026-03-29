@@ -1,0 +1,534 @@
+Perfect! Let me give you the complete code for **ESP32 receiving data from STM32 via UART** and sending it to your Flask server.
+
+---
+
+## **ARCHITECTURE:**
+
+```
+Battery Sensors → STM32 (Calculations) → UART → ESP32 (WiFi) → Flask Server → Web Dashboard
+```
+
+---
+
+## **STEP 1: STM32 to ESP32 Communication Protocol**
+
+### **Data Format from STM32:**
+
+STM32 should send data in this format via UART:
+```
+V:12.6,I:2.5,T:35.2,S:85,ST:Charging,H:Good\n
+```
+
+**Format:**
+- `V:` = Voltage (float)
+- `I:` = Current (float)
+- `T:` = Temperature (float)
+- `S:` = SOC (integer 0-100)
+- `ST:` = Status (string: "Charging", "Discharging", "Idle")
+- `H:` = Health (string: "Good", "Fair", "Poor")
+- `\n` = Line ending (important!)
+
+---
+
+## **STEP 2: Hardware Connections**
+
+### **Connect STM32 to ESP32:**
+
+```
+STM32          ESP32
+------         -----
+TX (PA9)   →   RX (GPIO16 / RX2)
+RX (PA10)  ←   TX (GPIO17 / TX2)
+GND        →   GND
+```
+
+**Important Notes:**
+- ESP32 uses **3.3V logic**, STM32 can be 3.3V or 5V
+- If STM32 is 5V, use a **level shifter** between TX pins
+- Connect **GND together** (very important!)
+- Use **Serial2** on ESP32 (pins 16, 17)
+
+---
+
+## **STEP 3: ESP32 Code (Complete)**
+
+### **FILE: esp32_bms_uart_receiver.ino**
+
+**Paste this in Arduino IDE:**
+
+```cpp
+/*
+ * ESP32 BMS UART Receiver
+ * Receives battery data from STM32 via UART
+ * Sends data to Flask web server via HTTP POST
+ * 
+ * Hardware Connections:
+ * STM32 TX (PA9)  → ESP32 RX (GPIO16)
+ * STM32 RX (PA10) → ESP32 TX (GPIO17)
+ * STM32 GND       → ESP32 GND
+ * 
+ * Author: BMS Project Team
+ * Date: 2024
+ */
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+
+// ============ CONFIGURATION - CHANGE THESE ============
+
+// WiFi credentials
+const char* ssid = "YOUR_WIFI_NAME";           // Your WiFi SSID
+const char* password = "YOUR_WIFI_PASSWORD";   // Your WiFi Password
+
+// Flask server URL
+// Find your computer's IP: Open CMD → type "ipconfig" → look for IPv4 Address
+// Example: "http://192.168.1.100:5000/api/esp32-data"
+const char* serverUrl = "http://192.168.1.100:5000/api/esp32-data";
+
+// UART Configuration
+#define RXD2 16  // ESP32 RX pin (connect to STM32 TX)
+#define TXD2 17  // ESP32 TX pin (connect to STM32 RX)
+#define BAUD_RATE 9600  // Must match STM32 baud rate
+
+// Send data interval (milliseconds)
+const unsigned long SEND_INTERVAL = 2000;  // Send every 2 seconds
+
+// ======================================================
+
+// Global variables
+String uartBuffer = "";
+bool dataReady = false;
+
+// Battery data structure
+struct BatteryData {
+  float voltage;
+  float current;
+  float temperature;
+  int soc;
+  String status;
+  String health;
+  bool valid;
+};
+
+BatteryData batteryData = {0, 0, 0, 0, "Unknown", "Unknown", false};
+unsigned long lastSendTime = 0;
+unsigned long lastDataReceived = 0;
+
+void setup() {
+  // Initialize Serial for debugging
+  Serial.begin(115200);
+  delay(1000);
+  
+  // Print startup banner
+  Serial.println("\n==========================================");
+  Serial.println("ESP32 BMS UART Receiver Starting...");
+  Serial.println("==========================================");
+  Serial.println("Project: Battery Management System");
+  Serial.println("Communication: STM32 → UART → ESP32 → HTTP");
+  Serial.println("==========================================\n");
+  
+  // Initialize UART for STM32 communication
+  Serial2.begin(BAUD_RATE, SERIAL_8N1, RXD2, TXD2);
+  Serial.println("✓ UART initialized");
+  Serial.printf("  RX Pin: GPIO%d\n", RXD2);
+  Serial.printf("  TX Pin: GPIO%d\n", TXD2);
+  Serial.printf("  Baud Rate: %d\n\n", BAUD_RATE);
+  
+  // Connect to WiFi
+  connectToWiFi();
+  
+  Serial.println("==========================================");
+  Serial.println("System Ready! Waiting for STM32 data...");
+  Serial.println("==========================================\n");
+}
+
+void loop() {
+  // Check WiFi connection
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("⚠ WiFi disconnected! Reconnecting...");
+    connectToWiFi();
+    return;
+  }
+  
+  // Read data from STM32 via UART
+  readUARTData();
+  
+  // If data is ready and enough time has passed, send to server
+  if (dataReady && (millis() - lastSendTime >= SEND_INTERVAL)) {
+    sendDataToServer();
+    dataReady = false;
+    lastSendTime = millis();
+  }
+  
+  // Check for timeout (no data from STM32 for 10 seconds)
+  if (millis() - lastDataReceived > 10000 && lastDataReceived > 0) {
+    Serial.println("⚠ WARNING: No data from STM32 for 10 seconds!");
+    Serial.println("  Check UART connections and STM32 program.");
+    lastDataReceived = millis();  // Reset to avoid spam
+  }
+}
+
+// ========== WiFi FUNCTIONS ==========
+
+void connectToWiFi() {
+  Serial.print("Connecting to WiFi: ");
+  Serial.println(ssid);
+  
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 30) {
+    delay(500);
+    Serial.print(".");
+    attempts++;
+  }
+  Serial.println();
+  
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("✓ WiFi Connected!");
+    Serial.print("  IP Address: ");
+    Serial.println(WiFi.localIP());
+    Serial.print("  Server URL: ");
+    Serial.println(serverUrl);
+    Serial.print("  Signal Strength: ");
+    Serial.print(WiFi.RSSI());
+    Serial.println(" dBm\n");
+  } else {
+    Serial.println("✗ WiFi Connection Failed!");
+    Serial.println("  Check WiFi credentials and try again.\n");
+  }
+}
+
+// ========== UART FUNCTIONS ==========
+
+void readUARTData() {
+  while (Serial2.available()) {
+    char c = Serial2.read();
+    
+    if (c == '\n' || c == '\r') {
+      if (uartBuffer.length() > 0) {
+        parseData(uartBuffer);
+        uartBuffer = "";
+      }
+    } else {
+      uartBuffer += c;
+    }
+  }
+}
+
+void parseData(String data) {
+  Serial.println("--- UART Data Received ---");
+  Serial.println("Raw: " + data);
+  
+  lastDataReceived = millis();
+  
+  // Expected format: V:12.6,I:2.5,T:35.2,S:85,ST:Charging,H:Good
+  
+  batteryData.voltage = extractValue(data, "V:");
+  batteryData.current = extractValue(data, "I:");
+  batteryData.temperature = extractValue(data, "T:");
+  batteryData.soc = (int)extractValue(data, "S:");
+  batteryData.status = extractString(data, "ST:");
+  batteryData.health = extractString(data, "H:");
+  
+  // Validate data
+  if (batteryData.voltage > 0 && batteryData.voltage < 100 &&
+      batteryData.temperature > -50 && batteryData.temperature < 150 &&
+      batteryData.soc >= 0 && batteryData.soc <= 100) {
+    
+    batteryData.valid = true;
+    dataReady = true;
+    
+    // Print parsed data
+    Serial.println("Parsed Data:");
+    Serial.printf("  Voltage: %.2f V\n", batteryData.voltage);
+    Serial.printf("  Current: %.2f A\n", batteryData.current);
+    Serial.printf("  Temperature: %.2f °C\n", batteryData.temperature);
+    Serial.printf("  SOC: %d %%\n", batteryData.soc);
+    Serial.printf("  Status: %s\n", batteryData.status.c_str());
+    Serial.printf("  Health: %s\n", batteryData.health.c_str());
+    Serial.println("✓ Data Valid!");
+    
+  } else {
+    batteryData.valid = false;
+    Serial.println("✗ Data Invalid - Out of range!");
+  }
+  
+  Serial.println("--------------------------\n");
+}
+
+float extractValue(String data, String key) {
+  int startIndex = data.indexOf(key);
+  if (startIndex == -1) return 0;
+  
+  startIndex += key.length();
+  int endIndex = data.indexOf(',', startIndex);
+  if (endIndex == -1) endIndex = data.length();
+  
+  String value = data.substring(startIndex, endIndex);
+  return value.toFloat();
+}
+
+String extractString(String data, String key) {
+  int startIndex = data.indexOf(key);
+  if (startIndex == -1) return "Unknown";
+  
+  startIndex += key.length();
+  int endIndex = data.indexOf(',', startIndex);
+  if (endIndex == -1) endIndex = data.length();
+  
+  String value = data.substring(startIndex, endIndex);
+  value.trim();
+  return value;
+}
+
+// ========== HTTP FUNCTIONS ==========
+
+void sendDataToServer() {
+  if (!batteryData.valid) {
+    Serial.println("⚠ Skipping send - invalid data");
+    return;
+  }
+  
+  Serial.println("=== Sending to Server ===");
+  
+  // Create JSON document
+  StaticJsonDocument<256> doc;
+  doc["voltage"] = batteryData.voltage;
+  doc["current"] = batteryData.current;
+  doc["temperature"] = batteryData.temperature;
+  doc["soc"] = batteryData.soc;
+  doc["status"] = batteryData.status;
+  doc["health"] = batteryData.health;
+  
+  // Serialize to string
+  String jsonString;
+  serializeJson(doc, jsonString);
+  
+  Serial.println("JSON: " + jsonString);
+  
+  // Send HTTP POST
+  HTTPClient http;
+  http.begin(serverUrl);
+  http.addHeader("Content-Type", "application/json");
+  http.setTimeout(5000);  // 5 second timeout
+  
+  int httpResponseCode = http.POST(jsonString);
+  
+  if (httpResponseCode > 0) {
+    Serial.printf("✓ HTTP Response: %d\n", httpResponseCode);
+    
+    if (httpResponseCode == 200) {
+      String response = http.getString();
+      Serial.println("Server: " + response);
+    }
+  } else {
+    Serial.printf("✗ HTTP Error: %s\n", http.errorToString(httpResponseCode).c_str());
+    Serial.println("  Check server URL and network connection.");
+  }
+  
+  http.end();
+  Serial.println("=========================\n");
+}
+
+// ========== UTILITY FUNCTIONS ==========
+
+void printSystemInfo() {
+  Serial.println("\n========== System Info ==========");
+  Serial.print("Chip Model: ");
+  Serial.println(ESP.getChipModel());
+  Serial.print("Chip Revision: ");
+  Serial.println(ESP.getChipRevision());
+  Serial.print("Flash Size: ");
+  Serial.print(ESP.getFlashChipSize() / 1024 / 1024);
+  Serial.println(" MB");
+  Serial.print("Free Heap: ");
+  Serial.print(ESP.getFreeHeap() / 1024);
+  Serial.println(" KB");
+  Serial.println("=================================\n");
+}
+```
+
+---
+
+## **STEP 4: STM32 Code (Sample to send data)**
+
+Here's sample STM32 code to send data to ESP32:
+
+### **FILE: stm32_bms_sender.c**
+
+```c
+/* STM32 BMS Data Sender
+ * Reads sensors and sends data to ESP32 via UART
+ * Format: V:12.6,I:2.5,T:35.2,S:85,ST:Charging,H:Good
+ */
+
+#include "main.h"
+#include <stdio.h>
+#include <string.h>
+
+// Function prototypes
+void sendBatteryData(void);
+float readVoltage(void);
+float readCurrent(void);
+float readTemperature(void);
+int calculateSOC(float voltage);
+
+// UART handle (adjust based on your setup)
+extern UART_HandleTypeDef huart1;  // Change to your UART handle
+
+int main(void) {
+    HAL_Init();
+    SystemClock_Config();
+    MX_GPIO_Init();
+    MX_USART1_UART_Init();  // Initialize UART
+    MX_ADC1_Init();  // Initialize ADC for sensors
+    
+    while (1) {
+        sendBatteryData();
+        HAL_Delay(2000);  // Send every 2 seconds
+    }
+}
+
+void sendBatteryData(void) {
+    // Read sensor values
+    float voltage = readVoltage();
+    float current = readCurrent();
+    float temperature = readTemperature();
+    int soc = calculateSOC(voltage);
+    
+    // Determine status
+    char* status = (current > 0) ? "Charging" : "Discharging";
+    char* health = "Good";
+    
+    // Format data string
+    char buffer[100];
+    sprintf(buffer, "V:%.2f,I:%.2f,T:%.2f,S:%d,ST:%s,H:%s\n",
+            voltage, current, temperature, soc, status, health);
+    
+    // Send via UART to ESP32
+    HAL_UART_Transmit(&huart1, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);
+}
+
+float readVoltage(void) {
+    // Read ADC value from voltage sensor
+    // Implement your voltage reading logic here
+    // Example:
+    // uint32_t adc_value = HAL_ADC_GetValue(&hadc1);
+    // float voltage = (adc_value / 4095.0) * 3.3 * VOLTAGE_DIVIDER_RATIO;
+    
+    // For testing, return simulated value:
+    return 12.6;
+}
+
+float readCurrent(void) {
+    // Read ADC value from current sensor (e.g., ACS712)
+    // Implement your current reading logic here
+    
+    // For testing:
+    return 2.5;
+}
+
+float readTemperature(void) {
+    // Read from temperature sensor (e.g., DS18B20, LM35)
+    // Implement your temperature reading logic here
+    
+    // For testing:
+    return 35.2;
+}
+
+int calculateSOC(float voltage) {
+    // Calculate State of Charge based on voltage
+    // Adjust thresholds based on your battery type
+    
+    if (voltage >= 12.7) return 100;
+    else if (voltage >= 12.4) return 75;
+    else if (voltage >= 12.2) return 50;
+    else if (voltage >= 12.0) return 25;
+    else return 10;
+}
+```
+
+---
+
+## **STEP 5: How to Use**
+
+### **1. Upload ESP32 Code:**
+- Open Arduino IDE
+- Select **Board: ESP32 Dev Module**
+- Select correct **COM Port**
+- Change WiFi credentials and server URL
+- Upload code
+
+### **2. Upload STM32 Code:**
+- Open STM32CubeIDE or Keil
+- Configure UART1 (9600 baud, 8N1)
+- Upload code
+
+### **3. Find Your Computer's IP:**
+```bash
+# Windows:
+ipconfig
+
+# Look for "IPv4 Address" under your WiFi adapter
+# Example: 192.168.1.100
+```
+
+### **4. Update ESP32 Code:**
+```cpp
+const char* serverUrl = "http://192.168.1.100:5000/api/esp32-data";
+```
+
+### **5. Run Flask Server:**
+```bash
+python app.py
+```
+
+### **6. Test:**
+- Open Serial Monitor (115200 baud)
+- You should see ESP32 receiving data from STM32
+- Check Flask terminal for incoming data
+- Visit dashboard to see live data!
+
+---
+
+## **Expected Serial Monitor Output:**
+
+```
+==========================================
+ESP32 BMS UART Receiver Starting...
+==========================================
+✓ UART initialized
+✓ WiFi Connected!
+  IP Address: 192.168.4.1
+==========================================
+
+--- UART Data Received ---
+Raw: V:12.6,I:2.5,T:35.2,S:85,ST:Charging,H:Good
+Parsed Data:
+  Voltage: 12.60 V
+  Current: 2.50 A
+  Temperature: 35.20 °C
+  SOC: 85 %
+  Status: Charging
+  Health: Good
+✓ Data Valid!
+
+=== Sending to Server ===
+JSON: {"voltage":12.6,"current":2.5,"temperature":35.2,"soc":85,"status":"Charging","health":"Good"}
+✓ HTTP Response: 200
+Server: {"success":true,"message":"Data received successfully"}
+=========================
+```
+
+---
+
+**Questions?** Ask me anything about:
+- UART connections
+- Sensor interfacing with STM32
+- Troubleshooting ESP32/STM32 communication
+- Testing without STM32
+
+Ready to build the hardware? 🔌⚡🚀

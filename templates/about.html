@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - About</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .nav {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .nav a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 25px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .nav a:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        .content-card h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .content-card h3 {
+            color: #333;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .content-card p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .tech-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .tech-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .tech-item p {
+            color: #666;
+            font-size: 0.95em;
+            margin: 0;
+        }
+        
+        .architecture {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .architecture-flow {
+            font-family: 'Courier New', monospace;
+            color: #333;
+            font-size: 1.1em;
+            line-height: 2;
+            text-align: center;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #555;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .team-section {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .team-section h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔋 About BMS Project</h1>
+            <p>IoT-Based Battery Management System</p>
+        </div>
+        
+        <div class="nav">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/history">History</a>
+            <a href="/alerts">Alerts</a>
+            <a href="/devices">Devices</a>
+            <a href="/simulator">Simulator</a>
+            <a href="/ai-dashboard">AI Analytics</a>
+            <a href="/settings">Settings</a>
+            <a href="/logout">Logout</a>
+        </div>
+        
+        <div class="content-card">
+            <h2>📖 Project Overview</h2>
+            <p>
+                The Battery Management System (BMS) is an advanced IoT-based monitoring solution designed 
+                to provide real-time insights into battery performance and health. This system combines 
+                embedded systems, IoT connectivity, and web technologies to create a comprehensive 
+                battery monitoring platform.
+            </p>
+            <p>
+                Our BMS continuously monitors critical battery parameters including voltage, current, 
+                temperature, and state of charge (SOC). The system provides instant alerts for 
+                potentially dangerous conditions and maintains historical data for analysis and 
+                predictive maintenance.
+            </p>
+            
+            <h3>🎯 Key Features</h3>
+            <ul class="feature-list">
+                <li>Real-time monitoring of voltage, current, temperature, and SOC</li>
+                <li>Live data updates every 2 seconds</li>
+                <li>Automated safety alerts and warnings</li>
+                <li>IoT connectivity for remote monitoring</li>
+                <li>Web-based dashboard accessible from any device</li>
+                <li>Historical data logging and analysis</li>
+                <li>Battery health monitoring</li>
+                <li>User-friendly interface with visual indicators</li>
+            </ul>
+        </div>
+        
+        <div class="content-card">
+            <h2>🔧 Technical Specifications</h2>
+            
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>Hardware</h4>
+                    <p><strong>STM32:</strong> Main controller for precise ADC readings and calculations</p>
+                    <p><strong>ESP32:</strong> IoT connectivity (WiFi/Bluetooth)</p>
+                    <p><strong>Sensors:</strong> Voltage, current, and temperature sensors</p>
+                </div>
+                
+                <div class="tech-item">
+                    <h4>Software - Backend</h4>
+                    <p><strong>Python Flask:</strong> Web framework</p>
+                    <p><strong>MQTT/HTTP:</strong> Communication protocol</p>
+                    <p><strong>SQLite:</strong> Database for data storage</p>
+                </div>
+                
+                <div class="tech-item">
+                    <h4>Software - Frontend</h4>
+                    <p><strong>HTML5/CSS3:</strong> Structure and styling</p>
+                    <p><strong>JavaScript:</strong> Real-time updates</p>
+                    <p><strong>Responsive Design:</strong> Works on all devices</p>
+                </div>
+                
+                <div class="tech-item">
+                    <h4>Communication</h4>
+                    <p><strong>Protocol:</strong> MQTT/HTTP</p>
+                    <p><strong>Update Rate:</strong> 2 seconds</p>
+                    <p><strong>Connectivity:</strong> WiFi enabled</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-card">
+            <h2>🏗️ System Architecture</h2>
+            <div class="architecture">
+                <div class="architecture-flow">
+                    Battery Sensors<br>
+                    ↓<br>
+                    STM32 (Data Processing)<br>
+                    ↓ UART ↓<br>
+                    ESP32 (IoT Module)<br>
+                    ↓ MQTT/HTTP ↓<br>
+                    Python Flask Server<br>
+                    ↓<br>
+                    Web Dashboard<br>
+                    (Your Browser)
+                </div>
+            </div>
+            
+            <h3>Data Flow</h3>
+            <p>
+                <strong>1. Data Collection:</strong> Sensors continuously measure battery parameters (voltage, current, temperature).
+            </p>
+            <p>
+                <strong>2. Processing:</strong> STM32 microcontroller processes raw sensor data, performs calculations, 
+                and ensures data accuracy.
+            </p>
+            <p>
+                <strong>3. Transmission:</strong> Processed data is sent to ESP32 via UART communication.
+            </p>
+            <p>
+                <strong>4. IoT Layer:</strong> ESP32 transmits data to the cloud/server using MQTT or HTTP protocol over WiFi.
+            </p>
+            <p>
+                <strong>5. Server Processing:</strong> Python Flask server receives data, stores it in database, 
+                and serves it through REST API.
+            </p>
+            <p>
+                <strong>6. Visualization:</strong> Web dashboard fetches data via API and displays it with 
+                real-time updates every 2 seconds.
+            </p>
+        </div>
+        
+        <div class="content-card">
+            <h2>💡 Use Cases</h2>
+            <h3>Electric Vehicles (EVs)</h3>
+            <p>Monitor battery packs in electric vehicles for optimal performance and safety.</p>
+            
+            <h3>Renewable Energy Storage</h3>
+            <p>Track solar/wind energy storage systems for efficient energy management.</p>
+            
+            <h3>Portable Power Banks</h3>
+            <p>Ensure safe operation and longevity of high-capacity power banks.</p>
+            
+            <h3>Industrial Battery Systems</h3>
+            <p>Monitor large-scale battery installations in industrial applications.</p>
+        </div>
+        
+        <div class="content-card">
+            <div class="team-section">
+                <h3>🎓 Final Year Project</h3>
+                <p>Developed as a comprehensive IoT solution combining hardware and software engineering.</p>
+                <p style="margin-top: 15px; font-size: 0.9em;">
+                    This project demonstrates the integration of embedded systems, IoT technologies, 
+                    and modern web development practices.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Alerts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .nav {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .nav a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 25px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .nav a:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .stat-danger { color: #ef4444; }
+        .stat-warning { color: #f59e0b; }
+        .stat-info { color: #3b82f6; }
+        
+        .filters {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filters label {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .filters select {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .filters button {
+            padding: 10px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .filters button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .alerts-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .alerts-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .alert-item {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .alert-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .alert-danger {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            border-left-color: #3b82f6;
+        }
+        
+        .alert-icon {
+            font-size: 2em;
+            flex-shrink: 0;
+        }
+        
+        .alert-content {
+            flex-grow: 1;
+        }
+        
+        .alert-type {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .alert-danger .alert-type { color: #dc2626; }
+        .alert-warning .alert-type { color: #d97706; }
+        .alert-info .alert-type { color: #2563eb; }
+        
+        .alert-message {
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .alert-timestamp {
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .no-alerts {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .no-alerts-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .no-alerts h3 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ System Alerts</h1>
+        <p class="subtitle">Monitor battery warnings and notifications</p>
+        
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/history">History</a>
+        <a href="/alerts">Alerts</a>
+        <a href="/devices">Devices</a>
+        <a href="/simulator">Simulator</a>
+        <a href="/settings">Settings</a>
+        <a href="/about">About</a>
+        <a href="/logout">Logout</a>
+    </div>
+        
+        <!-- Alert Statistics -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-label">Total Alerts</div>
+                <div class="stat-value">{{ alerts|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Critical</div>
+                <div class="stat-value stat-danger">
+                    {{ alerts|selectattr('severity', 'equalto', 'danger')|list|length }}
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Warnings</div>
+                <div class="stat-value stat-warning">
+                    {{ alerts|selectattr('severity', 'equalto', 'warning')|list|length }}
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Info</div>
+                <div class="stat-value stat-info">
+                    {{ alerts|selectattr('severity', 'equalto', 'info')|list|length }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+            <label>Filter by:</label>
+            <select id="severityFilter" onchange="filterAlerts()">
+                <option value="all">All Alerts</option>
+                <option value="danger">Critical Only</option>
+                <option value="warning">Warnings Only</option>
+                <option value="info">Info Only</option>
+            </select>
+            <button onclick="refreshAlerts()">Refresh</button>
+            <button onclick="testNotification()">Test Notification</button>
+            <button onclick="clearAlerts()">Clear All</button>
+        </div>
+        
+        <!-- Alerts List -->
+        <div class="alerts-container">
+            <h2>Recent Alerts</h2>
+            
+            {% if alerts %}
+                {% for alert in alerts %}
+                <div class="alert-item alert-{{ alert.severity }}" data-severity="{{ alert.severity }}">
+                    <div class="alert-icon">
+                        {% if alert.severity == 'danger' %}
+                            🚨
+                        {% elif alert.severity == 'warning' %}
+                            ⚠️
+                        {% else %}
+                            ℹ️
+                        {% endif %}
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-type">{{ alert.alert_type }}</div>
+                        <div class="alert-message">{{ alert.message }}</div>
+                        <div class="alert-timestamp">{{ alert.timestamp }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-alerts">
+                    <div class="no-alerts-icon">✅</div>
+                    <h3>No Alerts</h3>
+                    <p>All systems operating normally. No warnings or errors detected.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        // Request notification permission on page load
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+        
+        function showNotification(title, message, severity) {
+            // Check if browser supports notifications
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const icon = severity === 'danger' ? '🚨' : severity === 'warning' ? '⚠️' : 'ℹ️';
+                
+                const notification = new Notification(icon + ' ' + title, {
+                    body: message,
+                    requireInteraction: severity === 'danger',
+                    tag: 'bms-alert'
+                });
+                
+                // Close notification after 10 seconds (except for danger)
+                if (severity !== 'danger') {
+                    setTimeout(() => notification.close(), 10000);
+                }
+                
+                // Click on notification takes user to alerts page
+                notification.onclick = function() {
+                    window.focus();
+                    this.close();
+                };
+            }
+        }
+        
+        function filterAlerts() {
+            const filter = document.getElementById('severityFilter').value;
+            const alerts = document.querySelectorAll('.alert-item');
+            
+            alerts.forEach(alert => {
+                if (filter === 'all') {
+                    alert.style.display = 'flex';
+                } else {
+                    const severity = alert.getAttribute('data-severity');
+                    alert.style.display = severity === filter ? 'flex' : 'none';
+                }
+            });
+        }
+        
+        function refreshAlerts() {
+            window.location.reload();
+        }
+        
+        function clearAlerts() {
+            if (confirm('Are you sure you want to clear all alerts?')) {
+                alert('This feature will be connected to the backend to clear alerts from the database.');
+            }
+        }
+        
+        function testNotification() {
+            if (Notification.permission === 'granted') {
+                showNotification('Test Alert', 'This is a test notification from BMS', 'warning');
+            } else if (Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showNotification('Test Alert', 'This is a test notification from BMS', 'warning');
+                    }
+                });
+            } else {
+                alert('Notifications are blocked. Please enable them in your browser settings.');
+            }
+        }
+        
+        // Track previous alert count
+        let previousAlertCount = {{ alerts|length }};
+        
+        // Auto-refresh alerts every 30 seconds and check for new ones
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/alerts');
+                const data = await response.json();
+                
+                console.log('Alerts checked:', data.length);
+                
+                // If new alerts detected, show notification
+                if (data.length > previousAlertCount) {
+                    const newAlert = data[0];
+                    showNotification(
+                        newAlert.alert_type,
+                        newAlert.message,
+                        newAlert.severity
+                    );
+                    
+                    setTimeout(() => window.location.reload(), 2000);
+                }
+                
+                previousAlertCount = data.length;
+            } catch (error) {
+                console.error('Error fetching alerts:', error);
+            }
+        }, 30000);
+        
+        // Request notification permission on page load
+        window.addEventListener('load', () => {
+            if ('Notification' in window && Notification.permission === 'default') {
+                setTimeout(() => {
+                    if (confirm('Enable desktop notifications for BMS alerts?')) {
+                        Notification.requestPermission();
+                    }
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

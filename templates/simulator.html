@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - ESP32 Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .nav {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .nav a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 25px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .nav a:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .simulator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #10b981;
+        }
+        
+        .btn-secondary:hover {
+            background: #059669;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .info-box {
+            background: #e0e7ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+        
+        .log-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .log-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .log {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 400px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        
+        .log-timestamp {
+            color: #888;
+        }
+        
+        .log-success {
+            color: #00ff00;
+        }
+        
+        .log-error {
+            color: #ff4444;
+        }
+        
+        @media (max-width: 768px) {
+            .simulator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 ESP32 Simulator</h1>
+        <p class="subtitle">Test device registration and data sending without hardware</p>
+        
+        <div class="nav">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/history">History</a>
+            <a href="/alerts">Alerts</a>
+            <a href="/devices">Devices</a>
+            <a href="/simulator">Simulator</a>
+            <a href="/ai-dashboard">AI Analytics</a>
+            <a href="/settings">Settings</a>
+            <a href="/about">About</a>
+            <a href="/logout">Logout</a>
+        </div>
+        
+        <div class="info-box">
+            <h3>ℹ️ How to Use the Simulator</h3>
+            <p>
+                <strong>Step 1:</strong> Register a new device using "Device Registration" panel<br>
+                <strong>Step 2:</strong> Go to Devices page and approve the device<br>
+                <strong>Step 3:</strong> Copy the API token from Devices page<br>
+                <strong>Step 4:</strong> Paste the token here and send battery data<br>
+                <strong>Step 5:</strong> Check Dashboard to see the data appear!
+            </p>
+        </div>
+        
+        <div class="simulator-container">
+            <!-- Device Registration Card -->
+            <div class="card">
+                <h2>📡 Device Registration</h2>
+                
+                <div id="regAlert" class="alert"></div>
+                
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label>Device ID</label>
+                        <input type="text" id="regDeviceId" value="ESP32_TEST_001" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Device Name</label>
+                        <input type="text" id="regDeviceName" value="Test Battery Pack" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Notes (Optional)</label>
+                        <input type="text" id="regNotes" placeholder="e.g., Testing device">
+                    </div>
+                    
+                    <button type="submit" class="btn">Register Device</button>
+                    <button type="button" class="btn btn-secondary" onclick="generateRandomId()">🎲 Random ID</button>
+                </form>
+            </div>
+            
+            <!-- Data Sending Card -->
+            <div class="card">
+                <h2>⚡ Send Battery Data</h2>
+                
+                <div id="dataAlert" class="alert"></div>
+                
+                <form id="dataForm">
+                    <div class="form-group">
+                        <label>API Token</label>
+                        <input type="text" id="apiToken" placeholder="Paste token from Devices page" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Voltage (V)</label>
+                        <input type="number" id="voltage" value="12.6" step="0.1" min="0" max="20" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Current (A)</label>
+                        <input type="number" id="current" value="2.5" step="0.1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Temperature (°C)</label>
+                        <input type="number" id="temperature" value="35.0" step="0.5" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>State of Charge (%)</label>
+                        <input type="number" id="soc" value="85" min="0" max="100" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="status">
+                            <option value="Charging">Charging</option>
+                            <option value="Discharging">Discharging</option>
+                            <option value="Idle">Idle</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn">Send Data</button>
+                    <button type="button" class="btn btn-secondary" onclick="sendRandomData()">🎲 Random Data</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Log Container -->
+        <div class="log-container">
+            <h2>📝 Activity Log</h2>
+            <div class="log" id="logOutput">
+                <div class="log-entry log-success">
+                    [SYSTEM] ESP32 Simulator Ready
+                </div>
+                <div class="log-entry">
+                    [INFO] Register a device to begin testing...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('logOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function showAlert(elementId, message, type) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.className = `alert alert-${type} show`;
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+        
+        function generateRandomId() {
+            const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById('regDeviceId').value = `ESP32_${random}`;
+            addLog(`Generated random Device ID: ESP32_${random}`, 'info');
+        }
+        
+        // Device Registration
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const deviceId = document.getElementById('regDeviceId').value;
+            const deviceName = document.getElementById('regDeviceName').value;
+            const notes = document.getElementById('regNotes').value;
+            
+            addLog(`Attempting to register device: ${deviceId}...`, 'info');
+            
+            try {
+                const response = await fetch('/api/device/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        device_id: deviceId,
+                        device_name: deviceName,
+                        notes: notes
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('regAlert', `✓ Device registered! Status: ${result.status}`, 'success');
+                    addLog(`✓ Device registered successfully: ${deviceId}`, 'success');
+                    addLog(`Status: ${result.status} (Go to Devices page to approve)`, 'info');
+                } else {
+                    showAlert('regAlert', `✗ ${result.error}`, 'error');
+                    addLog(`✗ Registration failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert('regAlert', '✗ Network error', 'error');
+                addLog(`✗ Network error: ${error.message}`, 'error');
+            }
+        });
+        
+        // Send Battery Data
+        document.getElementById('dataForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const apiToken = document.getElementById('apiToken').value;
+            const voltage = parseFloat(document.getElementById('voltage').value);
+            const current = parseFloat(document.getElementById('current').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const soc = parseInt(document.getElementById('soc').value);
+            const status = document.getElementById('status').value;
+            
+            addLog(`Sending battery data... V=${voltage}V, I=${current}A, T=${temperature}°C`, 'info');
+            
+            try {
+                const response = await fetch('/api/esp32-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Token': apiToken
+                    },
+                    body: JSON.stringify({
+                        voltage: voltage,
+                        current: current,
+                        temperature: temperature,
+                        soc: soc,
+                        status: status,
+                        health: 'Good'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('dataAlert', '✓ Data sent successfully!', 'success');
+                    addLog(`✓ Data sent successfully! Check Dashboard to see it.`, 'success');
+                } else {
+                    showAlert('dataAlert', `✗ ${result.error}`, 'error');
+                    addLog(`✗ Failed to send data: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert('dataAlert', '✗ Network error', 'error');
+                addLog(`✗ Network error: ${error.message}`, 'error');
+            }
+        });
+        
+        function sendRandomData() {
+            document.getElementById('voltage').value = (Math.random() * 2 + 11).toFixed(2);
+            document.getElementById('current').value = (Math.random() * 3 + 0.5).toFixed(2);
+            document.getElementById('temperature').value = (Math.random() * 20 + 25).toFixed(1);
+            document.getElementById('soc').value = Math.floor(Math.random() * 40 + 60);
+            
+            addLog('Generated random battery values', 'info');
+        }
+    </script>
+</body>
+</html>

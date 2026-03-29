@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS - Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .nav {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .nav a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 25px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .nav a:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .settings-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        .settings-container h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .setting-group {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .setting-group h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .setting-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 200px;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .setting-item label {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .setting-item .description {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .setting-item input {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        .setting-item input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+        
+        .setting-item .unit {
+            color: #999;
+            font-size: 0.9em;
+            justify-self: start;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #f8f9fa;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .info-box {
+            background: #e0e7ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .current-values {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        .current-values h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .value-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .value-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .value-data {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ System Settings</h1>
+        <p class="subtitle">Configure battery monitoring thresholds and alerts</p>
+        
+        <div class="nav">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/history">History</a>
+            <a href="/alerts">Alerts</a>
+            <a href="/devices">Devices</a>
+            <a href="/simulator">Simulator</a>
+            <a href="/ai-dashboard">AI Analytics</a>
+            <a href="/settings">Settings</a>
+            <a href="/about">About</a>
+            <a href="/logout">Logout</a>
+        </div>
+        
+        <!-- Alert Messages -->
+        <div id="alertSuccess" class="alert alert-success">
+            ✓ Settings saved successfully!
+        </div>
+        
+        <div id="alertError" class="alert alert-error">
+            ✗ Error saving settings. Please try again.
+        </div>
+        
+        <!-- Info Box -->
+        <div class="info-box">
+            <h3>ℹ️ About Settings</h3>
+            <p>
+                Configure the threshold values for your battery monitoring system. When battery parameters 
+                exceed these limits, alerts will be triggered automatically. These settings are saved to 
+                the database and will persist across sessions.
+            </p>
+        </div>
+        
+        <!-- Current Settings Form -->
+        <div class="settings-container">
+            <h2>Alert Thresholds</h2>
+            
+            <form id="settingsForm">
+                <!-- Voltage Settings -->
+                <div class="setting-group">
+                    <h3>⚡ Voltage Settings</h3>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <label>Minimum Voltage</label>
+                            <div class="description">Alert when voltage drops below this value</div>
+                        </div>
+                        <input type="number" id="voltage_min" name="voltage_min" 
+                               value="{{ settings.voltage_min if settings else 11.0 }}" 
+                               step="0.1" min="0" max="20" required>
+                        <span class="unit">Volts (V)</span>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <label>Maximum Voltage</label>
+                            <div class="description">Alert when voltage exceeds this value</div>
+                        </div>
+                        <input type="number" id="voltage_max" name="voltage_max" 
+                               value="{{ settings.voltage_max if settings else 14.0 }}" 
+                               step="0.1" min="0" max="20" required>
+                        <span class="unit">Volts (V)</span>
+                    </div>
+                </div>
+                
+                <!-- Current Settings -->
+                <div class="setting-group">
+                    <h3>🔌 Current Settings</h3>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <label>Maximum Current</label>
+                            <div class="description">Alert when current exceeds this value</div>
+                        </div>
+                        <input type="number" id="current_max" name="current_max" 
+                               value="{{ settings.current_max if settings else 5.0 }}" 
+                               step="0.1" min="0" max="50" required>
+                        <span class="unit">Amperes (A)</span>
+                    </div>
+                </div>
+                
+                <!-- Temperature Settings -->
+                <div class="setting-group">
+                    <h3>🌡️ Temperature Settings</h3>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <label>Maximum Temperature</label>
+                            <div class="description">Alert when temperature exceeds this value</div>
+                        </div>
+                        <input type="number" id="temperature_max" name="temperature_max" 
+                               value="{{ settings.temperature_max if settings else 45.0 }}" 
+                               step="0.5" min="0" max="100" required>
+                        <span class="unit">Celsius (°C)</span>
+                    </div>
+                </div>
+                
+                <!-- State of Charge Settings -->
+                <div class="setting-group">
+                    <h3>🔋 State of Charge (SOC) Settings</h3>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <label>Minimum SOC</label>
+                            <div class="description">Alert when battery charge drops below this percentage</div>
+                        </div>
+                        <input type="number" id="soc_min" name="soc_min" 
+                               value="{{ settings.soc_min if settings else 20 }}" 
+                               step="1" min="0" max="100" required>
+                        <span class="unit">Percent (%)</span>
+                    </div>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="buttons">
+                    <button type="submit" class="btn btn-primary">💾 Save Settings</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">↺ Reset to Default</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Current Values Display -->
+        <div class="current-values">
+            <h2>📊 Current Settings Summary</h2>
+            <div class="values-grid">
+                <div class="value-item">
+                    <div class="value-label">Min Voltage</div>
+                    <div class="value-data" id="displayVoltageMin">{{ settings.voltage_min if settings else 11.0 }} V</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-label">Max Voltage</div>
+                    <div class="value-data" id="displayVoltageMax">{{ settings.voltage_max if settings else 14.0 }} V</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-label">Max Current</div>
+                    <div class="value-data" id="displayCurrentMax">{{ settings.current_max if settings else 5.0 }} A</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-label">Max Temperature</div>
+                    <div class="value-data" id="displayTempMax">{{ settings.temperature_max if settings else 45.0 }} °C</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-label">Min SOC</div>
+                    <div class="value-data" id="displaySocMin">{{ settings.soc_min if settings else 20 }} %</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Handle form submission
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                voltage_min: parseFloat(document.getElementById('voltage_min').value),
+                voltage_max: parseFloat(document.getElementById('voltage_max').value),
+                current_max: parseFloat(document.getElementById('current_max').value),
+                temperature_max: parseFloat(document.getElementById('temperature_max').value),
+                soc_min: parseInt(document.getElementById('soc_min').value)
+            };
+            
+            // Validate inputs
+            if (formData.voltage_min >= formData.voltage_max) {
+                showAlert('error', 'Minimum voltage must be less than maximum voltage!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', 'Settings saved successfully!');
+                    updateDisplayValues(formData);
+                } else {
+                    showAlert('error', 'Error saving settings. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', 'Network error. Please check your connection.');
+            }
+        });
+        
+        // Show alert message
+        function showAlert(type, message) {
+            const alertElement = type === 'success' ? 
+                document.getElementById('alertSuccess') : 
+                document.getElementById('alertError');
+            
+            // Update message if provided
+            if (message) {
+                alertElement.textContent = type === 'success' ? '✓ ' + message : '✗ ' + message;
+            }
+            
+            alertElement.classList.add('show');
+            
+            setTimeout(() => {
+                alertElement.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Update display values
+        function updateDisplayValues(data) {
+            document.getElementById('displayVoltageMin').textContent = data.voltage_min + ' V';
+            document.getElementById('displayVoltageMax').textContent = data.voltage_max + ' V';
+            document.getElementById('displayCurrentMax').textContent = data.current_max + ' A';
+            document.getElementById('displayTempMax').textContent = data.temperature_max + ' °C';
+            document.getElementById('displaySocMin').textContent = data.soc_min + ' %';
+        }
+        
+        // Reset form to default values
+        function resetForm() {
+            if (confirm('Reset all settings to default values?')) {
+                document.getElementById('voltage_min').value = 11.0;
+                document.getElementById('voltage_max').value = 14.0;
+                document.getElementById('current_max').value = 5.0;
+                document.getElementById('temperature_max').value = 45.0;
+                document.getElementById('soc_min').value = 20;
+            }
+        }
+        
+        // Real-time input validation
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                const min = parseFloat(e.target.min);
+                const max = parseFloat(e.target.max);
+                
+                if (value < min) e.target.value = min;
+                if (value > max) e.target.value = max;
+            });
+        });
+    </script>
+</body>
+</html>
